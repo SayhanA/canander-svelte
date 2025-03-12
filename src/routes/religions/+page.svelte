@@ -11,7 +11,7 @@
 		event.preventDefault();
 		const data = { name, description, isActive };
 
-		await fetch('/api/save.json', {
+		await fetch('/api/religions', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(data)
@@ -21,12 +21,12 @@
 	}
 
 	async function fetchReligions() {
-		const response = await fetch('/api/save.json');
+		const response = await fetch('/api/religions');
 		religions = await response.json();
 	}
 
     async function handleDelete(id) {
-        await fetch('/api/save.json', {
+        await fetch('/api/religions', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id })
