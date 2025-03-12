@@ -28,7 +28,7 @@
     "id": 1741793408410
   },
   {
-    "name": "First Castes ",
+    "name": "First Castes,",
     "description": "First caste description",
     "religionId": "1741761624623",
     "id": 1741793811533
@@ -51,9 +51,15 @@
     "id": 1741817659696
   },
   {
-    "name": "Second Caste ...",
+    "name": "Second Caste",
     "description": "Second Caste Description",
     "religionId": "1741761624623",
     "id": 1741820406679
+  },
+  {
+    "name": "Third Caste",
+    "description": "Third caste description",
+    "religionId": "1741761624623",
+    "id": 1741822431515
   }
 ]

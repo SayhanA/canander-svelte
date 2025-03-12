@@ -1,13 +1,14 @@
 <script>
 	// @ts-nocheck
+	import { onMount } from 'svelte';
+	import toast, { Toaster } from 'svelte-french-toast';
+
 	let { religionId, religionName, castId, castName, castDes, handleEdit } = $props();
 
-	// Initialize form fields with previous values
 	let id = $state(castId);
 	let name = $state(castName);
 	let description = $state(castDes);
 
-	// Watch for changes when user selects a caste for editing
 	$effect(() => {
 		if (castId !== id) {
 			id = castId;
@@ -20,31 +21,34 @@
 		event.preventDefault();
 		const data = { name, description, religionId };
 
+		let response;
 		if (id) {
-			// Update caste
 			data.id = id;
-			console.log(data);
-			const response = await fetch('/api/castes', {
+			response = await fetch('/api/castes', {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(data)
 			});
 
-			const result = await response.json();
-			console.log('Caste updated:', result);
+			if (response.ok) {
+				toast.success('Caste updated successfully!');
+			} else {
+				toast.error('Failed to update caste.');
+			}
 		} else {
-			// Create new caste
-			const response = await fetch('/api/castes', {
+			response = await fetch('/api/castes', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(data)
 			});
 
-			const result = await response.json();
-			console.log('Caste added:', result);
+			if (response.ok) {
+				toast.success('Caste added successfully!');
+			} else {
+				toast.error('Failed to add caste.');
+			}
 		}
 
-		// Reset form
 		id = '';
 		name = '';
 		description = '';
@@ -90,15 +94,14 @@
 			>
 				{#if id}
 					Update Caste
-				{/if}
-				{#if !id}
+				{:else}
 					Save
 				{/if}
 			</button>
 			<button
 				type="button"
 				onclick={() => handleEdit({ id: '', name: '', description: '' })}
-				class="w-full rounded-md py-2 text-white transition bg-[#ec6dd2]"
+				class="w-full rounded-md bg-[#ec6dd2] py-2 text-white transition"
 			>
 				Cancel
 			</button>

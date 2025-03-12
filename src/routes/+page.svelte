@@ -1,4 +1,6 @@
 <script>
+	import { Toaster } from "svelte-french-toast";
+
 	const style = 'rounded-md bg-[#5965fe] px-5 py-3 text-white';
 </script>
 

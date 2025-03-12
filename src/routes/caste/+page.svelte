@@ -4,6 +4,7 @@
 	import { onMount } from 'svelte';
 	import CastesForm from '../../components/CastesForm.svelte';
 	import CastesTable from '../../components/CastesTable.svelte';
+	import { Toaster } from 'svelte-french-toast';
 
 	// @ts-nocheck
 
@@ -39,6 +40,7 @@
 	<title>Calendar | Caste</title>
 	<meta name="robots" content="noindex nofollow" />
 </svelte:head>
+
 
 <main class="p-10">
 	<section class="">

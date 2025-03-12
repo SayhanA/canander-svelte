@@ -1,53 +1,101 @@
 <script>
 	// @ts-nocheck
 	import { onMount } from 'svelte';
+	import toast, { Toaster } from 'svelte-french-toast';
 
 	let name = '';
 	let description = '';
 	let isActive = false;
+	let editId = null;
 	let religions = [];
+	let isLoading = false;
+
+	async function fetchReligions() {
+		try {
+			const response = await fetch('/api/religions');
+			if (!response.ok) {
+				throw new Error('Failed to fetch religions');
+			}
+			religions = await response.json();
+		} catch (error) {
+			toast.error(error.message);
+		}
+	}
 
 	async function handleSubmit(event) {
 		event.preventDefault();
+		isLoading = true;
+
 		const data = { name, description, isActive };
+		const method = editId ? 'PATCH' : 'POST';
+		const url = '/api/religions';
 
-		await fetch('/api/religions', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(data)
-		});
+		if (editId) {
+			data.id = editId;
+		}
 
-		await fetchReligions();
+		try {
+			const response = await fetch(url, {
+				method,
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(data),
+			});
+
+			if (response.ok) {
+				toast.success('Successfully saved');
+				resetForm();
+				await fetchReligions();
+			} else {
+				toast.error('Failed to save');
+			}
+		} catch (error) {
+			toast.error('An error occurred');
+		} finally {
+			isLoading = false;
+		}
 	}
 
-	async function fetchReligions() {
-		const response = await fetch('/api/religions');
-		religions = await response.json();
+	async function handleDelete(id) {
+		try {
+			const response = await fetch('/api/religions', {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ id }),
+			});
+
+			if (response.ok) {
+				toast.success('Successfully deleted');
+				await fetchReligions();
+			} else {
+				toast.error('Failed to delete');
+			}
+		} catch (error) {
+			toast.error('An error occurred');
+		}
 	}
 
-    async function handleDelete(id) {
-        await fetch('/api/religions', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
-        });
+	function handleEdit(religion) {
+		name = religion.name;
+		description = religion.description;
+		isActive = religion.isActive;
+		editId = religion.id;
+	}
 
-        await fetchReligions();
-    }
-
-    function handleEdit(religion) {
-        name = religion.name;
-        description = religion.description;
-        isActive = religion.isActive;
-        editId = religion.id;
-    }
+	function resetForm() {
+		name = '';
+		description = '';
+		isActive = false;
+		editId = null;
+	}
 
 	onMount(fetchReligions);
 </script>
 
+<Toaster />
+
 <main class="p-8">
-	<section class="w-fit mx-auto">
-		<h2 class="text-center text-2xl font-bold text-gray-900 mb-6">Religion Manager</h2>
+	<section class="mx-auto w-fit">
+		<h2 class="mb-6 text-center text-2xl font-bold text-gray-900">Religion Manager</h2>
 
 		<form on:submit={handleSubmit} class="flex flex-col space-y-4">
 			<div>
@@ -87,22 +135,27 @@
 
 			<button
 				type="submit"
-				class="w-full rounded-md bg-blue-600 py-2 text-white transition hover:bg-blue-700"
+				class="w-full rounded-md bg-blue-600 py-2 text-white transition hover:bg-blue-700 disabled:bg-blue-300"
+				disabled={isLoading}
 			>
-				Save Religion
+				{#if editId}
+					{isLoading ? 'Updating...' : 'Update Religion'}
+				{:else}
+					{isLoading ? 'Saving...' : 'Save Religion'}
+				{/if}
 			</button>
 		</form>
 	</section>
 
 	<!-- Religion Table -->
 	<section class="mt-8">
-		<h2 class="text-xl font-bold text-gray-900 mb-4 text-center">Saved Religions</h2>
+		<h2 class="mb-4 text-center text-xl font-bold text-gray-900">Saved Religions</h2>
 
 		<div class="overflow-x-auto">
-			<table class="w-full border border-gray-300 rounded-lg shadow-lg">
-				<thead class="bg-gray-200 text-gray-700 text-left">
+			<table class="w-full rounded-lg border border-gray-300 shadow-lg">
+				<thead class="bg-gray-200 text-left text-gray-700">
 					<tr class="border-b border-gray-300">
-						<th class="p-3"><input type="checkbox" class="w-5 h-5" /></th>
+						<th class="p-3"><input type="checkbox" class="h-5 w-5" /></th>
 						<th class="p-3">Name</th>
 						<th class="p-3">Description</th>
 						<th class="p-3">Active</th>
@@ -113,14 +166,29 @@
 				<tbody class="divide-y divide-gray-300">
 					{#each religions as religion}
 						<tr class="hover:bg-gray-100">
-							<td class="p-3"><input type="checkbox" class="w-5 h-5" /></td>
+							<td class="p-3"><input type="checkbox" class="h-5 w-5" /></td>
 							<td class="p-3 font-semibold">{religion.name}</td>
-							<td class="p-3 max-w-xs truncate">{religion.description}</td>
+							<td class="max-w-xs truncate p-3">{religion.description}</td>
 							<td class="p-3">{religion.isActive ? '✅ Yes' : '❌ No'}</td>
-							<td class="p-3 flex justify-center space-x-2">
-                                <a href={`/caste?religionId=${religion.id}&religionName=${religion.name}`} class="bg-purple-500 text-white px-3 py-1 rounded-md text-sm">caste</a>
-								<button on:click={() => handleEdit(religion)} class="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm">Edit</button>
-								<button on:click={() => handleDelete(religion.id)} class="bg-red-500 text-white px-3 py-1 rounded-md text-sm">Delete</button>
+							<td class="flex justify-center space-x-2 p-3">
+								<a
+									href={`/caste?religionId=${religion.id}&religionName=${religion.name}`}
+									class="rounded-md bg-purple-500 px-3 py-1 text-sm text-white"
+								>
+									Caste
+								</a>
+								<button
+									on:click={() => handleEdit(religion)}
+									class="rounded-md bg-yellow-500 px-3 py-1 text-sm text-white"
+								>
+									Edit
+								</button>
+								<button
+									on:click={() => handleDelete(religion.id)}
+									class="rounded-md bg-red-500 px-3 py-1 text-sm text-white"
+								>
+									Delete
+								</button>
 							</td>
 						</tr>
 					{:else}
