@@ -1,16 +1,28 @@
 <script>
-// @ts-nocheck
+	// @ts-nocheck
+	import { addToast } from '../stores/toastStore';
 
-	let { castes, handleEdit } = $props();
 
-    async function handleDelete(id) {
-        await fetch('api/castes', {
-            method: 'DELETE',
-            headers: {'content-type': 'application/json'},
-            body: JSON.stringify({ id })
-        })
-    }
+	let { castes, handleEdit, fetchCastes } = $props();
 
+	async function handleDelete(id) {
+		try {
+			const response = await fetch('api/castes', {
+				method: 'DELETE',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ id })
+			});
+			fetchCastes();
+			if (response.status === 404) {
+				return addToast('error', 'Failed to delete caste!');
+			}
+			addToast('success', 'Caste deleted successfully.');
+
+			console.log({ response });
+		} catch (error) {
+			addToast('error', 'Failed to delete caste!');
+		}
+	}
 </script>
 
 <section class="mt-8">
@@ -30,21 +42,27 @@
 
 			<tbody class="divide-y divide-gray-300">
 				{#each castes as caste}
-                    <tr class="hover:bg-gray-100">
-                        <td class="p-3"><input type="checkbox" class="w-5 h-5" /></td>
-                        <td class="p-3 font-semibold">{caste.name}</td>
-                        <td class="p-3 max-w-xs truncate">{caste.description}</td>
-                        <!-- <td class="p-3">{caste.isActive ? '✅ Yes' : '❌ No'}</td> -->
-                        <td class="p-3 flex justify-center space-x-2">
-                            <button onclick={() => handleEdit(caste)} class="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm">Edit</button>
-                            <button onclick={() => handleDelete(caste.id)} class="bg-red-500 text-white px-3 py-1 rounded-md text-sm">Delete</button>
-                        </td>
-                    </tr>
-                {:else}
-                    <tr>
-                        <td colspan="5" class="p-3 text-center text-gray-500">No religions added yet.</td>
-                    </tr>
-                {/each}
+					<tr class="hover:bg-gray-100">
+						<td class="p-3"><input type="checkbox" class="h-5 w-5" /></td>
+						<td class="p-3 font-semibold">{caste.name}</td>
+						<td class="max-w-xs truncate p-3">{caste.description}</td>
+						<!-- <td class="p-3">{caste.isActive ? '✅ Yes' : '❌ No'}</td> -->
+						<td class="flex justify-center space-x-2 p-3">
+							<button
+								onclick={() => handleEdit(caste)}
+								class="rounded-md bg-yellow-500 px-3 py-1 text-sm text-white">Edit</button
+							>
+							<button
+								onclick={() => handleDelete(caste._id)}
+								class="rounded-md bg-red-500 px-3 py-1 text-sm text-white">Delete</button
+							>
+						</td>
+					</tr>
+				{:else}
+					<tr>
+						<td colspan="5" class="p-3 text-center text-gray-500">No religions added yet.</td>
+					</tr>
+				{/each}
 			</tbody>
 		</table>
 	</div>

@@ -1,8 +1,10 @@
 <script>
 	// @ts-nocheck
 	import { onMount } from 'svelte';
+	import { addToast } from '../stores/toastStore';
 
-	let { religionId, religionName, castId, castName, castDes, handleEdit, fetchCastes } = $props();
+	let { religionId, religionName, castId, castName, castDes, handleEdit, fetchCastes, resetForm } =
+		$props();
 
 	let id = $state(castId);
 	let name = $state(castName);
@@ -30,10 +32,14 @@
 			});
 
 			if (response.ok) {
+				resetForm();
 				await fetchCastes();
+				addToast('success', 'Caste saved successfully');
 			} else {
+				addToast('error', 'Failed to save caste!');
 			}
 		} else {
+			console.log('Data  form CasteForm line:37', data);
 			response = await fetch('/api/castes', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -41,8 +47,11 @@
 			});
 
 			if (response.ok) {
+				resetForm();
 				await fetchCastes();
+				addToast('success', 'Caste updated successfully');
 			} else {
+				addToast('error', 'Failed to update caste!');
 			}
 		}
 

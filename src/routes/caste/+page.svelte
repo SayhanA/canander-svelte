@@ -27,9 +27,15 @@
 	}
 
 	function handleEdit(caste) {
-		id = caste.id;
+		id = caste._id;
 		name = caste.name;
 		description = caste.description;
+	}
+
+	function resetForm (){
+		id = '',
+		name = '',
+		description = ''
 	}
 
 	onMount(fetchCastes);
@@ -57,9 +63,10 @@
 		castDes={description}
 		{handleEdit}
 		{fetchCastes}
+		{resetForm}
 	/>
 
 	{#if id === ''}
-		<CastesTable {castes} {handleEdit} />
+		<CastesTable {castes} {handleEdit} {fetchCastes} />
 	{/if}
 </main>
