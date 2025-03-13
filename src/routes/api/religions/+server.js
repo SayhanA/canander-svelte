@@ -1,56 +1,71 @@
 // @ts-nocheck
 import { json } from '@sveltejs/kit';
-import fs from 'fs/promises';
+import { connectDB } from '$lib/db';
+import { Religion } from '$lib/model/Religion';
 
-const FILE_PATH = 'static/religions.json';
+export async function GET() {
+	await connectDB();
 
-async function readData() {
 	try {
-		const data = await fs.readFile(FILE_PATH, 'utf-8');
-		return JSON.parse(data);
+		const religions = await Religion.find();
+		return json(religions);
 	} catch (error) {
-		console.log(error);
-		return [];
+		console.error(error);
+		return json({ error: 'Internal Server Error' }, { status: 500 });
 	}
 }
 
-async function writeData(data) {
-	await fs.writeFile(FILE_PATH, JSON.stringify(data, null, 2));
-}
-
-export async function GET() {
-	return json(await readData());
-}
-
 export async function POST({ request }) {
-	const religions = await readData();
-	const newReligion = await request.json();
+    await connectDB();
 
-	newReligion.id = Date.now();
-	religions.push(newReligion);
+    try {
+        const rawData = await request.text();
+        const newReligion = JSON.parse(rawData);
+        console.log('New Religion:', newReligion);
 
-	await writeData(religions);
-	return json({ message: 'Religion added successfully', religion: newReligion });
+        const religion = new Religion(newReligion);
+        console.log('Religion:', religion);
+        
+        await religion.save();
+        return json({ message: 'Religion added successfully', religion });
+    } catch (error) {
+        console.error('Error saving religion:', error);
+        return json({ error: 'Internal Server Error' }, { status: 500 });
+    }
 }
+
 
 export async function DELETE({ request }) {
-	const { id } = await request.json();
-	let religions = await readData();
+	await connectDB();
 
-	religions = religions.filter((religion) => religion.id !== id);
-	await writeData(religions);
+	try {
+		const { id } = await request.json();
+		if (!id) return json({ error: 'ID is required' }, { status: 400 });
 
-	return json({ message: 'Religion deleted successfully' });
+		const deletedReligion = await Religion.findByIdAndDelete(id);
+		if (!deletedReligion) return json({ error: 'Religion not found' }, { status: 404 });
+
+		return json({ message: 'Religion deleted successfully' });
+	} catch (error) {
+		console.error(error);
+		return json({ error: 'Internal Server Error' }, { status: 500 });
+	}
 }
 
 export async function PATCH({ request }) {
-	const updatedReligion = await request.json();
-	let religions = await readData();
+	await connectDB();
 
-	religions = religions.map((religion) =>
-		religion.id === updatedReligion.id ? updatedReligion : religion
-	);
-	await writeData(religions);
+	try {
+		const updatedReligion = await request.json();
+		const religion = await Religion.findByIdAndUpdate(updatedReligion._id, updatedReligion, {
+			new: true
+		});
 
-	return json({ message: 'Religion updated successfully', religion: updatedReligion });
+		if (!religion) return json({ message: 'Religion not found' }, { status: 404 });
+
+		return json({ message: 'Religion updated successfully', religion });
+	} catch (error) {
+		console.error(error);
+		return json({ error: 'Internal Server Error' }, { status: 500 });
+	}
 }

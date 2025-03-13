@@ -2,7 +2,7 @@
 	// @ts-nocheck
 	import { onMount } from 'svelte';
 
-	let { religionId, religionName, castId, castName, castDes, handleEdit } = $props();
+	let { religionId, religionName, castId, castName, castDes, handleEdit, fetchCastes } = $props();
 
 	let id = $state(castId);
 	let name = $state(castName);
@@ -30,6 +30,7 @@
 			});
 
 			if (response.ok) {
+				await fetchCastes();
 			} else {
 			}
 		} else {
@@ -40,6 +41,7 @@
 			});
 
 			if (response.ok) {
+				await fetchCastes();
 			} else {
 			}
 		}

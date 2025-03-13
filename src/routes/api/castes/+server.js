@@ -1,76 +1,64 @@
 // @ts-nocheck
 import { json } from '@sveltejs/kit';
-import fs from 'fs/promises';
-
-const FILE_PATH = 'static/castes.json';
-
-async function readData() {
-	try {
-		const data = await fs.readFile(FILE_PATH, 'utf-8');
-		return JSON.parse(data);
-	} catch (error) {
-		console.log(error);
-		return [];
-	}
-}
-
-async function writeData(data) {
-    await fs.writeFile(FILE_PATH, JSON.stringify(data, null, 2));
-}
+import { connectDB } from '$lib/db';
+import { Caste } from '$lib/model/Casts';
 
 export async function GET({ url }) {
+    await connectDB();
+
     try {
         const religionId = url.searchParams.get('religionId');
         if (!religionId) return json({ error: 'Missing religionId' }, { status: 400 });
 
-        const data = await readData();
-        const filteredCastes = data.filter(caste => caste.religionId === religionId);
-
-        return json(filteredCastes);
+        const castes = await Caste.find({ religionId });
+        return json(castes);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
 
 export async function POST({ request }) {
-	const castes = await readData();
-	const newCaste = await request.json();
+    await connectDB();
 
-	newCaste.id = Date.now();
-	castes.push(newCaste);
+    try {
+        const newCaste = await request.json();
+        const caste = new Caste({ ...newCaste, id: Date.now() });
 
-	await writeData(castes); 
-	return json({ message: 'Caste added successfully', caste: newCaste });
+        await caste.save();
+        return json({ message: 'Caste added successfully', caste });
+    } catch (error) {
+        console.error(error);
+        return json({ error: 'Internal Server Error' }, { status: 500 });
+    }
 }
 
-export async function DELETE({request}) {
-    const {id} = await request.json();
-    let castes = await readData();
+export async function DELETE({ request }) {
+    await connectDB();
 
-    castes = castes.filter(caste => caste.id !== id);
-    await writeData(castes);
+    try {
+        const { id } = await request.json();
+        await Caste.deleteOne({ id });
 
-    return json({message: 'Caste deleted successfully'});
+        return json({ message: 'Caste deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        return json({ error: 'Internal Server Error' }, { status: 500 });
+    }
 }
 
 export async function PATCH({ request }) {
-    const updatedCaste = await request.json();
+    await connectDB();
 
-    let castes = await readData();
-    
-    // Ensure that the ID exists in the dataset
-    const index = castes.findIndex(caste => caste.id === updatedCaste.id);
-    if (index === -1) {
-        return json({ message: 'Caste not found' }, { status: 404 });
+    try {
+        const updatedCaste = await request.json();
+        const caste = await Caste.findOneAndUpdate({ id: updatedCaste.id }, updatedCaste, { new: true });
+
+        if (!caste) return json({ message: 'Caste not found' }, { status: 404 });
+
+        return json({ message: 'Caste updated successfully', caste });
+    } catch (error) {
+        console.error(error);
+        return json({ error: 'Internal Server Error' }, { status: 500 });
     }
-
-    // Update the specific caste
-    castes[index] = { ...castes[index], ...updatedCaste };
-
-    // Write the updated list back to storage
-    await writeData(castes);
-
-    return json({ message: 'Caste updated successfully', caste: castes[index] });
 }
-

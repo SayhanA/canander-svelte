@@ -56,6 +56,7 @@
 		castName={name}
 		castDes={description}
 		{handleEdit}
+		{fetchCastes}
 	/>
 
 	{#if id === ''}
