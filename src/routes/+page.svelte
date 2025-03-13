@@ -7,7 +7,7 @@
 <svelte:head>
 	<title>Calander | Home</title>
 	<meta name="robots" content="noindex nofollow" />
-	<html lang="en" />
+	
 </svelte:head>
 
 <main>

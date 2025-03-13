@@ -6,7 +6,7 @@
 <svelte:head>
 	<title>Calander | Birthdate</title>
 	<meta name="robots" content="noindex nofollow" />
-	<html lang="en" />
+	
 </svelte:head>
 
 <main>
