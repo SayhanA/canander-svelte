@@ -2,6 +2,7 @@
 	// @ts-nocheck
 	import { onMount } from 'svelte';
 	import ReligionForm from '../../components/ReligionForm.svelte';
+	import { addToast } from '../../stores/toastStore';
 
 	let name = '';
 	let description = '';
@@ -16,7 +17,6 @@
 				throw new Error('Failed to fetch religions');
 			}
 			religions = await response.json();
-
 		} catch (error) {}
 	}
 
@@ -30,7 +30,9 @@
 
 			if (response.ok) {
 				await fetchReligions();
+				addToast('success', 'Religion deleted .');
 			} else {
+				addToast('error', 'Failed to delete religion.');
 			}
 		} catch (error) {}
 	}
@@ -53,7 +55,7 @@
 </script>
 
 <main class="p-8">
-	<ReligionForm {name} {description} {isActive} {editId} {resetForm} {fetchReligions} />
+	<ReligionForm {name} {description} {isActive} {editId} {fetchReligions} {resetForm} />
 	{#if !editId}
 		<!-- Religion Table -->
 		<section class="mt-8">

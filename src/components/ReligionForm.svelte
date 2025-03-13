@@ -3,7 +3,7 @@
 	import { addToast } from '../stores/toastStore';
 
 	let isLoading = $state(false);
-	let { name, description, isActive, editId, resetForm, fetchReligions } = $props();
+	let { name, description, isActive, editId, fetchReligions, resetForm } = $props();
 
 	async function handleSubmit(event) {
 		event.preventDefault();
@@ -15,7 +15,6 @@
 
 		if (editId) {
 			data.id = editId;
-			console.log(data);
 		}
 
 		try {
@@ -27,8 +26,12 @@
 
 			if (response.ok) {
 				resetForm();
+				name = '';
+				description = '';
+				isActive = false;
+				editId = null;
 				await fetchReligions();
-				addToast('success', 'Religion saved successfully!');
+				addToast('success', 'Religion saved successfully!.....');
 			} else {
 				addToast('error', 'Failed to save religion!');
 			}
@@ -42,8 +45,6 @@
 </script>
 
 <section class="mx-auto w-fit">
-	<!-- <Toaster {status} message={'Toasted massage'} /> -->
-
 	<h2 class="mb-6 text-center text-2xl font-bold text-gray-900">Religion Manager</h2>
 
 	<form onsubmit={handleSubmit} class="flex flex-col space-y-4">
