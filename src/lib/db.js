@@ -1,7 +1,7 @@
 // @ts-nocheck
 import mongoose from 'mongoose';
 
-const MONGO_URI = 'mongodb://localhost:27017/';
+const MONGO_URI = process.env.MONGO_URI;
 
 export async function connectDB() {
     if (mongoose.connection.readyState >= 1) return;
