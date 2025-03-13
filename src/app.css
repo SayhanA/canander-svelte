@@ -3,3 +3,15 @@
 button {
 	@apply max-w-[400px] cursor-pointer;
 }
+
+.btn-primary {
+	@apply w-[300px] rounded-md bg-blue-600 py-3 text-white transition hover:bg-blue-700 disabled:bg-blue-300;
+}
+
+.btn-secondary {
+	@apply w-[300px] rounded-md bg-[#ec6dd2] py-3 text-white transition hover:bg-gray-700 disabled:bg-gray-300;
+}
+
+.input {
+	@apply w-[300px] rounded-md border border-blue-500 mt-1 block p-3 focus:ring focus:ring-blue-300;
+}

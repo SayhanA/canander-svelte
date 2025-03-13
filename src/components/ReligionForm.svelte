@@ -1,7 +1,9 @@
 <script>
 	// @ts-nocheck
+	import { addToast } from '../stores/toastStore';
+
 	let isLoading = $state(false);
-	let { name, description, isActive, editId, fetchReligions } = $props();
+	let { name, description, isActive, editId, resetForm, fetchReligions } = $props();
 
 	async function handleSubmit(event) {
 		event.preventDefault();
@@ -23,16 +25,16 @@
 				body: JSON.stringify(data)
 			});
 
-            console.log({response});
-
 			if (response.ok) {
-				// resetForm();
+				resetForm();
 				await fetchReligions();
+				addToast('success', 'Religion saved successfully!');
 			} else {
-				console.log('Failed to submit');
+				addToast('error', 'Failed to save religion!');
 			}
 		} catch (error) {
 			console.error('Error submitting data:', error);
+			addToast('error', 'Failed to save religion!');
 		} finally {
 			isLoading = false;
 		}
@@ -40,19 +42,14 @@
 </script>
 
 <section class="mx-auto w-fit">
+	<!-- <Toaster {status} message={'Toasted massage'} /> -->
+
 	<h2 class="mb-6 text-center text-2xl font-bold text-gray-900">Religion Manager</h2>
 
 	<form onsubmit={handleSubmit} class="flex flex-col space-y-4">
 		<div>
 			<label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-			<input
-				id="name"
-				type="text"
-				name="name"
-				bind:value={name}
-				class="mt-1 block w-full rounded-md border p-2 focus:ring focus:ring-blue-300"
-				required
-			/>
+			<input id="name" type="text" name="name" bind:value={name} class="input" required />
 		</div>
 
 		<div>
@@ -62,7 +59,7 @@
 				type="text"
 				name="description"
 				bind:value={description}
-				class="mt-1 block w-full rounded-md border p-2 focus:ring focus:ring-blue-300"
+				class="input"
 				required
 			/>
 		</div>
@@ -78,16 +75,17 @@
 			<label for="isActive" class="ml-2 text-sm text-gray-700">Active</label>
 		</div>
 
-		<button
-			type="submit"
-			class="w-full rounded-md bg-blue-600 py-2 text-white transition hover:bg-blue-700 disabled:bg-blue-300"
-			disabled={isLoading}
-		>
+		<div>
+			<button type="submit" class="btn-primary" disabled={isLoading}>
+				{#if editId}
+					{isLoading ? 'Updating...' : 'Update Religion'}
+				{:else}
+					{isLoading ? 'Saving...' : 'Save Religion'}
+				{/if}
+			</button>
 			{#if editId}
-				{isLoading ? 'Updating...' : 'Update Religion'}
-			{:else}
-				{isLoading ? 'Saving...' : 'Save Religion'}
+				<button type="button" onclick={resetForm} class="btn-secondary"> Cancel </button>
 			{/if}
-		</button>
+		</div>
 	</form>
 </section>

@@ -57,7 +57,9 @@ export async function PATCH({ request }) {
 
 	try {
 		const updatedReligion = await request.json();
-		const religion = await Religion.findByIdAndUpdate(updatedReligion._id, updatedReligion, {
+		console.log('Updated Religion:', updatedReligion);
+
+		const religion = await Religion.findByIdAndUpdate(updatedReligion.id, updatedReligion, {
 			new: true
 		});
 
