@@ -1,7 +1,6 @@
 <script>
 	// @ts-nocheck
 	import { onMount } from 'svelte';
-	import toast, { Toaster } from 'svelte-french-toast';
 
 	let { religionId, religionName, castId, castName, castDes, handleEdit } = $props();
 
@@ -31,9 +30,7 @@
 			});
 
 			if (response.ok) {
-				toast.success('Caste updated successfully!');
 			} else {
-				toast.error('Failed to update caste.');
 			}
 		} else {
 			response = await fetch('/api/castes', {
@@ -43,9 +40,7 @@
 			});
 
 			if (response.ok) {
-				toast.success('Caste added successfully!');
 			} else {
-				toast.error('Failed to add caste.');
 			}
 		}
 

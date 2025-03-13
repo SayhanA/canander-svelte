@@ -1,7 +1,6 @@
 <script>
 	// @ts-nocheck
 	import { onMount } from 'svelte';
-	import toast, { Toaster } from 'svelte-french-toast';
 
 	let name = '';
 	let description = '';
@@ -18,7 +17,6 @@
 			}
 			religions = await response.json();
 		} catch (error) {
-			toast.error(error.message);
 		}
 	}
 
@@ -44,12 +42,9 @@
 			if (response.ok) {
 				resetForm();
 				await fetchReligions();
-				toast.success('Successfully saved');
 			} else {
-				toast.error('Failed to save');
 			}
 		} catch (error) {
-			toast.error('An error occurred');
 		} finally {
 			isLoading = false;
 		}
@@ -64,13 +59,10 @@
 			});
 
 			if (response.ok) {
-				toast.success('Successfully deleted');
 				await fetchReligions();
 			} else {
-				toast.error('Failed to delete');
 			}
 		} catch (error) {
-			toast.error('An error occurred');
 		}
 	}
 
@@ -91,7 +83,6 @@
 	onMount(fetchReligions);
 </script>
 
-<Toaster />
 
 <main class="p-8">
 	<section class="mx-auto w-fit">
