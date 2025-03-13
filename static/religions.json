@@ -16,5 +16,11 @@
     "description": "First caste description",
     "isActive": true,
     "id": 1741822937156
+  },
+  {
+    "name": "Second Reli",
+    "description": "Second religion description",
+    "isActive": true,
+    "id": 1741823847689
   }
 ]

@@ -42,9 +42,9 @@
 			});
 
 			if (response.ok) {
-				toast.success('Successfully saved');
 				resetForm();
 				await fetchReligions();
+				toast.success('Successfully saved');
 			} else {
 				toast.error('Failed to save');
 			}
